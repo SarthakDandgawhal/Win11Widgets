@@ -1,0 +1,212 @@
+<UserControl
+    x:Class="Win11Widgets.Views.Widgets.TodoListWidgetView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Win11Widgets.ViewModels"
+    mc:Ignorable="d"
+    d:DesignWidth="320"
+    d:DesignHeight="400">
+
+    <Border Background="{ThemeResource WidgetBackgroundColor}"
+            BorderBrush="{ThemeResource WidgetBorderColor}"
+            BorderThickness="1"
+            CornerRadius="12"
+            Padding="0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Height="36" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <FontIcon Grid.Column="0" Glyph="&#xE8EC;" FontSize="16" 
+                          Foreground="{ThemeResource WidgetAccentColor}" 
+                          Margin="12,0,8,0" VerticalAlignment="Center" />
+                
+                <TextBlock Grid.Column="1" Text="Todo List" Style="{StaticResource WidgetTitleStyle}" VerticalAlignment="Center" />
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,4,8,4" Spacing="4">
+                    <Button Style="{StaticResource WidgetHeaderButtonStyle}"
+                            ToolTipService.ToolTip="Toggle Completed"
+                            Command="{Binding ToggleShowCompletedCommand}">
+                        <FontIcon Glyph="&#xE8E9;" FontSize="14" Foreground="{ThemeResource WidgetTextSecondary}" />
+                    </Button>
+                    <Button Style="{StaticResource WidgetHeaderButtonStyle}"
+                            ToolTipService.ToolTip="Close"
+                            Command="{Binding CloseCommand}">
+                        <FontIcon Glyph="&#xE711;" FontSize="14" Foreground="{ThemeResource WidgetTextSecondary}" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- Add Item -->
+            <Grid Grid.Row="1" Margin="12,0,12,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                         Text="{Binding NewItemText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PlaceholderText="Add a new task..."
+                         FontSize="13"
+                         Padding="12,8"
+                         Background="{ThemeResource WidgetHoverColor}"
+                         BorderBrush="{ThemeResource WidgetBorderColor}"
+                         BorderThickness="1"
+                         CornerRadius="6"
+                         KeyDown="NewItemTextBox_KeyDown" />
+
+                <Button Grid.Column="1"
+                        Style="{StaticResource WidgetPrimaryButtonStyle}"
+                        Margin="8,0,0,0"
+                        Padding="16,0"
+                        Command="{Binding AddItemCommand}"
+                        VerticalAlignment="Stretch">
+                    <FontIcon Glyph="&#xE710;" FontSize="16" />
+                </Button>
+            </Grid>
+
+            <!-- Items List -->
+            <ScrollViewer Grid.Row="2" Margin="12,0,12,8" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding VisibleItems}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TodoItemViewModel">
+                            <Border Background="{ThemeResource WidgetHoverColor}" 
+                                    BorderBrush="{ThemeResource WidgetBorderColor}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Margin="0,0,0,6"
+                                    Padding="10,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Checkbox -->
+                                    <CheckBox Grid.Column="0"
+                                              IsChecked="{Binding Model.IsCompleted, Mode=TwoWay}"
+                                              VerticalAlignment="Center"
+                                              Margin="0,0,10,0"
+                                              Command="{Binding DataContext.ToggleCompleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              CommandParameter="{Binding}" />
+
+                                    <!-- Text / Edit -->
+                                    <Grid Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBox Text="{Binding EditText, Mode=TwoWay}"
+                                                 FontSize="13"
+                                                 Background="Transparent"
+                                                 BorderThickness="0"
+                                                 Foreground="{ThemeResource WidgetTextPrimary}"
+                                                 Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                 KeyDown="EditTextBox_KeyDown"
+                                                 LostFocus="EditTextBox_LostFocus" />
+
+                                        <TextBlock Text="{Binding Text}"
+                                                   FontSize="13"
+                                                   Foreground="{ThemeResource WidgetTextPrimary}"
+                                                   TextWrapping="Wrap"
+                                                   Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}"
+                                                   TextDecorations="{Binding Model.IsCompleted, Converter={StaticResource BoolToTextDecorationsConverter}}" />
+                                    </Grid>
+
+                                    <!-- Actions -->
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                        <Button Style="{StaticResource WidgetHeaderButtonStyle}"
+                                                ToolTipService.ToolTip="Edit"
+                                                Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}"
+                                                Click="Edit_Click">
+                                            <FontIcon Glyph="&#xE70F;" FontSize="12" Foreground="{ThemeResource WidgetTextSecondary}" />
+                                        </Button>
+                                        <Button Style="{StaticResource WidgetHeaderButtonStyle}"
+                                                ToolTipService.ToolTip="Save"
+                                                Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                Click="SaveEdit_Click">
+                                            <FontIcon Glyph="&#xE74E;" FontSize="12" Foreground="{ThemeResource WidgetAccentColor}" />
+                                        </Button>
+                                        <Button Style="{StaticResource WidgetHeaderButtonStyle}"
+                                                ToolTipService.ToolTip="Cancel"
+                                                Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                Click="CancelEdit_Click">
+                                            <FontIcon Glyph="&#xE711;" FontSize="12" Foreground="{ThemeResource WidgetTextSecondary}" />
+                                        </Button>
+                                        <Button Style="{StaticResource WidgetHeaderButtonStyle}"
+                                                ToolTipService.ToolTip="Delete"
+                                                Click="Delete_Click">
+                                            <FontIcon Glyph="&#xE74D;" FontSize="12" Foreground="{ThemeResource WidgetTextSecondary}" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Footer -->
+            <Grid Grid.Row="3" Height="36" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Style="{StaticResource WidgetHeaderButtonStyle}"
+                        ToolTipService.ToolTip="Pin"
+                        Command="{Binding PinCommand}"
+                        Background="{Binding State.IsPinned, Converter={StaticResource BoolToBrushConverter}, ConverterParameter={ThemeResource WidgetAccentColor}}">
+                    <FontIcon Glyph="&#xE77A;" FontSize="14" 
+                              Foreground="{Binding State.IsPinned, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=White}" />
+                </Button>
+
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Items.Count, StringFormat='{0} tasks'}"
+                           Style="{StaticResource WidgetBodyStyle}"
+                           FontSize="12"
+                           VerticalAlignment="Center"
+                           Margin="8,0"
+                           Foreground="{ThemeResource WidgetTextSecondary}"
+                           Opacity="0.7" />
+
+                <Button Grid.Column="2"
+                        Style="{StaticResource WidgetHeaderButtonStyle}"
+                        ToolTipService.ToolTip="Duplicate"
+                        Command="{Binding DuplicateCommand}">
+                    <FontIcon Glyph="&#xE8C8;" FontSize="14" Foreground="{ThemeResource WidgetTextSecondary}" />
+                </Button>
+            </Grid>
+
+            <Thumb x:Name="ResizeThumb"
+                   Width="20" Height="20"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,4,4"
+                   Cursor="SizeNWSE"
+                   DragDelta="ResizeThumb_DragDelta">
+                <Thumb.Template>
+                    <ControlTemplate TargetType="Thumb">
+                        <Path Data="M0,12 L12,0 M4,12 L12,8 M8,12 L12,4"
+                              Stroke="{ThemeResource WidgetTextSecondary}"
+                              StrokeThickness="1.5"
+                              Opacity="0.5"
+                              Stretch="None" />
+                    </ControlTemplate>
+                </Thumb.Template>
+            </Thumb>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,1 @@
+C:\Users\Sarthak Dandgawhal\harness\Win11Widgets\obj\Release\net8.0-windows10.0.19041.0\Win11Widgets.csproj.AssemblyReference.cache

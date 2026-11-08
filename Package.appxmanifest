@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package>
+  <Identity Name="Win11Widgets" Publisher="CN=SarthakDandgawhal" Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>Win11 Widgets Manager</DisplayName>
+    <PublisherDisplayName>Sarthak Dandgawhal</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Win11Widgets.App">
+      <uap:VisualElements
+        DisplayName="Win11 Widgets"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        Description="Drag-and-drop desktop widgets for Windows 11"
+        BackgroundColor="#202020"
+        AppListEntry="none">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.startupTask" Executable="Win11Widgets.exe" EntryPoint="Win11Widgets.App">
+          <uap:StartupTask TaskId="Win11WidgetsStartup" Enabled="false" DisplayName="Win11 Widgets Manager" />
+        </uap:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient" />
+    <uap:Capability Name="documentsLibrary" />
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>
